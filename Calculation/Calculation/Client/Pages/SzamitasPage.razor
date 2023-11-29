@@ -1,0 +1,62 @@
+﻿@page "/szamolas"
+@using System.ComponentModel;
+@using Calculation.Client.Models;
+
+<h3>Eredmény</h3>
+<EditForm Model="@ViewModel" OnValidSubmit="Compute">
+    <div class="col-4">
+        <div class="form-group">
+            <label for="egyikszam">Egyik szám</label>
+            <InputText class="form-control" id="alap" @bind-Value="@ViewModel.Egyikszam" />
+        </div>
+        <div class="form-group">
+            <label for="masikszam">Másik szám</label>
+            <InputText class="form-control" id="lab" @bind-Value="@ViewModel.Masikszam"></InputText>
+        </div>
+        <button class="mt-2" type="submit" disabled="@ViewModel.IsBusy">Számítás</button>
+    </div>
+</EditForm>
+
+<div class="card mt-2 p-2">
+    <h5 class="card-title">Számolás</h5>
+    <div class="card-body">
+        <p>Számítás: @ViewModel.EredmenySzamitas</p>
+        <p>Eredmény: @ViewModel.EredmenySzamitas</p>
+    </div>
+</div>
+
+@code {
+    private Szamit ViewModel = new Szamit();
+
+    protected override async Task OnInitializedAsync()
+    {
+        ViewModel.PropertyChanged += async (sender, e) =>
+        {
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        };
+        await base.OnInitializedAsync();
+    }
+
+    async void OnPropertyChangedHandler(object sender, PropertyChangedEventArgs e)
+    {
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        ViewModel.PropertyChanged -= OnPropertyChangedHandler;
+    }
+
+    public void Compute()
+    {
+        ViewModel.IsBusy = true;
+        ViewModel.Compute();
+        ViewModel.IsBusy = false;
+    }
+}
